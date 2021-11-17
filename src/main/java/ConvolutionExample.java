@@ -87,10 +87,8 @@ public class ConvolutionExample {
     System.out.print("FFT(a): ");
     PrintHelpers.printDoublePointer(
         fft_a.get_output_pointer(),
-        2
-            * fft_a
-                .output_size); // in C++ code this was print_complex_array, using
-                               // fft_a.output_buffer
+        2 * fft_a.output_size); // in C++ code this was print_complex_array, using
+    // fft_a.output_buffer
     System.out.println();
 
     System.out.print("FFT(a) (complex): ");
