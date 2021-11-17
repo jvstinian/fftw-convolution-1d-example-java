@@ -19,7 +19,6 @@ unit: # run unit tests
 	@mvn test
 
 lint: # lints all files
-	@./scripts/run-standard-linter.sh
 	@mvn com.coveo:fmt-maven-plugin:check
 
 fix: # fix code formatting
