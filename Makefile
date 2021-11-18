@@ -9,7 +9,7 @@ help:   # prints all make targets
 
 setup:
 
-run: # runs the svc
+run: # runs the program
 	@java -jar ./target/fftw-convolution-1d-example-0.0.1-SNAPSHOT-jar-with-dependencies.jar
 
 build: # build the package
@@ -23,6 +23,9 @@ lint: # lints all files
 
 fix: # fix code formatting
 	@mvn com.coveo:fmt-maven-plugin:format
+
+lint-checkstyle: # lint using checkstyle (https://maven.apache.org/plugins/maven-checkstyle-plugin/usage.html)
+	@mvn checkstyle::check
 
 test: clean build lint unit    # runs all tests
 

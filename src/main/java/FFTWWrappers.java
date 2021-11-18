@@ -31,12 +31,16 @@ public class FFTWWrappers {
     public void set_input_zeropadded(double[] buffer) {
       int size = buffer.length;
       assert (size <= this.input_size);
-      /*
-      double[] tempbuffer = new double[this.input_size];
-      System.arraycopy(buffer, 0, tempbuffer, 0, buffer.length);
-      Arrays.fill(tempbuffer, size, this.input_size, 0.0);
-      this.input_buffer.put(tempbuffer);
-      */
+      // The DoublePointer type allows for C style memset 
+      // and memcpy calls, which were used in the C++ 
+      // example.  Preserving this logic would seem to require 
+      // first creating a DoublePointer from the Java array 
+      // (buffer), which involves an additional copy operation.  
+      // An alternative might be to use 
+      // this.input_buffer.put(buffer) instead of memcpy, 
+      // which would still require a memset call or similar.  
+      // We use the memcpy approach to more closely follow 
+      // the original example.  
       DoublePointer.memcpy(
           this.input_buffer, new DoublePointer(buffer), this.input_buffer.sizeof() * size);
       DoublePointer.memset(
@@ -54,7 +58,8 @@ public class FFTWWrappers {
     }
 
     public double[] get_output() {
-      // return this.output_buffer.asBuffer().array();
+      // multiply by 2 as this is an array of doubles 
+      // and not complex numbers
       double[] result = new double[2 * this.output_size];
       this.output_buffer.get(result);
       return result;
@@ -108,6 +113,7 @@ public class FFTWWrappers {
 
     public void set_input(double[] buffer) {
       assert ((buffer.length / 2) == this.input_size);
+      // Comments above about memcpy also apply here.
       DoublePointer.memcpy(
           this.input_buffer, new DoublePointer(buffer), this.input_buffer.sizeof() * buffer.length);
       DoublePointer.memset(
@@ -135,147 +141,9 @@ public class FFTWWrappers {
     }
 
     public double[] get_output() {
-      // return this.output_buffer.asBuffer().array();
       double[] result = new double[this.output_size];
       this.output_buffer.get(result);
       return result;
     }
   };
 };
-/*
-#include <vector>
-#include <complex.h>
-#include <fftw3.h>
-
-// Usage: (after initializing the class)
-// 1. Fill input_buffer with input containing n_real_samples double numbers
-//    (note, set_input_zeropadded will copy your buffer with optional zero padding)
-// 2. Run execute().
-// 3. Extract output by calling get_output() or directly access output_buffer[0], ..., output_buffer[output_size-1].
-//    Note that the output is composed of n_real_samples/2 + 1 complex numbers.
-//
-// These 3 steps can be repeated many times.
-class FFTW_R2C_1D_Executor {
-public:
-    FFTW_R2C_1D_Executor(int n_real_samples);
-    ~FFTW_R2C_1D_Executor();
-    void set_input_zeropadded(const double* buffer, int size);
-    void set_input_zeropadded(const std::vector<double>& vec);
-    void execute();
-    std::vector<double complex> get_output();
-
-    const int input_size;
-    double* const input_buffer;
-
-    const int output_size;
-    double complex* const output_buffer;
-
-private:
-    fftw_plan plan;
-};
-
-// Usage of this class is similar to that of FFTW_R2C_1D_Executor, only the input is n_real_samples/2+1 complex samples.
-class FFTW_C2R_1D_Executor {
-public:
-    FFTW_C2R_1D_Executor(int n_real_samples);
-    ~FFTW_C2R_1D_Executor();
-    void set_input(const double complex* buffer, int size);
-    void set_input(const std::vector<double complex>& vec);
-    void execute();
-    std::vector<double> get_output();
-
-    const int input_size;
-    double complex* const input_buffer;
-
-    const int output_size;
-    double* const output_buffer;
-
-private:
-    fftw_plan plan;
-};
-
-
-#endif
-
-#include <cassert>
-#include <cstring>
-#include "fftw_wrappers.hh"
-
-using namespace std;
-
-FFTW_R2C_1D_Executor::FFTW_R2C_1D_Executor(int n_real_samples) :
-    input_size(n_real_samples),
-    input_buffer(fftw_alloc_real(n_real_samples)),
-    output_size(n_real_samples/2 + 1),
-    output_buffer(fftw_alloc_complex(n_real_samples/2 + 1))
-{
-    plan = fftw_plan_dft_r2c_1d(n_real_samples, input_buffer, output_buffer, FFTW_ESTIMATE);
-}
-
-FFTW_R2C_1D_Executor::~FFTW_R2C_1D_Executor()
-{
-    fftw_destroy_plan(plan);
-    fftw_free(input_buffer);
-    fftw_free(output_buffer);
-}
-
-void FFTW_R2C_1D_Executor::set_input_zeropadded(const double* buffer, int size)
-{
-    assert(size <= input_size);
-    memcpy(input_buffer, buffer, sizeof(double)*size);
-    memset(&input_buffer[size], 0, sizeof(double)*(input_size - size));
-}
-
-void FFTW_R2C_1D_Executor::set_input_zeropadded(const vector<double>& vec)
-{
-    set_input_zeropadded(&vec[0], vec.size());
-}
-
-void FFTW_R2C_1D_Executor::execute()
-{
-    fftw_execute(plan);
-}
-
-vector<double complex> FFTW_R2C_1D_Executor::get_output()
-{
-    return vector<double complex>(output_buffer, output_buffer + output_size);
-}
-
-FFTW_C2R_1D_Executor::FFTW_C2R_1D_Executor(int n_real_samples) :
-    input_size(n_real_samples/2 + 1),
-    input_buffer(fftw_alloc_complex(n_real_samples/2 + 1)),
-    output_size(n_real_samples),
-    output_buffer(fftw_alloc_real(n_real_samples))
-{
-    plan = fftw_plan_dft_c2r_1d(n_real_samples, input_buffer, output_buffer, FFTW_ESTIMATE);
-}
-
-FFTW_C2R_1D_Executor::~FFTW_C2R_1D_Executor()
-{
-    fftw_destroy_plan(plan);
-    fftw_free(input_buffer);
-    fftw_free(output_buffer);
-}
-
-void FFTW_C2R_1D_Executor::set_input(const double complex* buffer, int size)
-{
-    assert(size == input_size);
-    memcpy(input_buffer, buffer, sizeof(double complex)*size);
-    memset(&input_buffer[size], 0, sizeof(double complex)*(input_size - size));
-}
-
-void FFTW_C2R_1D_Executor::set_input(const vector<double complex>& vec)
-{
-    set_input(&vec[0], vec.size());
-}
-
-void FFTW_C2R_1D_Executor::execute()
-{
-    fftw_execute(plan);
-}
-
-vector<double> FFTW_C2R_1D_Executor::get_output()
-{
-    return vector<double>(output_buffer, output_buffer + output_size);
-}
-*/
