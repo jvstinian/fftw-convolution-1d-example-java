@@ -15,23 +15,3 @@ make build-docker
 make run-docker
 ```
 
-# Linting
-
-```
-mvn com.coveo:fmt-maven-plugin:check
-```
-
-can be used to check the format and
-
-```
-mvn com.coveo:fmt-maven-plugin:format
-```
-
-can be used to fix formatting. These are called when running `make lint` and `make fix`, respectively.
-
-[checkstyle](https://maven.apache.org/plugins/maven-checkstyle-plugin/usage.html) is also installed, though is not being explicitly used
-at the moment. It can be called using
-
-```
-mvn checkstyle::check
-```
