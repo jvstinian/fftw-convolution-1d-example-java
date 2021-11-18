@@ -145,16 +145,6 @@ public class ConvolutionExample {
    * @param args
    */
   public static void main(String[] args) {
-    long n_real_samples = 10;
-    int input_size = (int) n_real_samples;
-    DoublePointer input_buffer = fftw3.fftw_alloc_real(input_size);
-    int output_size = (int) n_real_samples / 2 + 1;
-    DoublePointer output_buffer = fftw3.fftw_alloc_complex(output_size);
-    fftw3.fftw_plan plan =
-        fftw3.fftw_plan_dft_r2c_1d(
-            (int) n_real_samples, input_buffer, output_buffer, fftw3.FFTW_ESTIMATE);
-    fftw3.fftw_print_plan(plan);
-
     double[] a = {2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
     System.out.println("First vector (a): ");
     PrintHelpers.print(a);
