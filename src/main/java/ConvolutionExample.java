@@ -99,10 +99,6 @@ public class ConvolutionExample {
     PrintHelpers.print(fft_a.get_output());
     System.out.println();
 
-    System.out.print("FFT(a) (complex): ");
-    PrintHelpers.print_complex_array(fft_a.get_output_as_complex_array());
-    System.out.println();
-
     // Compute Fourier transform of vector b
 
     FFTWWrappers.FFTW_R2C_1D_Executor fft_b = new FFTWWrappers.FFTW_R2C_1D_Executor(padded_length);
@@ -124,6 +120,7 @@ public class ConvolutionExample {
 
     System.out.print("FFT(a) * FFT(b): ");
     PrintHelpers.print(elementwise_complex_multiply(fft_a.get_output(), fft_b.get_output()));
+    System.out.println();
 
     ifft.set_input(elementwise_complex_multiply(fft_a.get_output(), fft_b.get_output()));
     // Alternatively, using the Complex type:
