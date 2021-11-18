@@ -31,16 +31,16 @@ public class FFTWWrappers {
     public void set_input_zeropadded(double[] buffer) {
       int size = buffer.length;
       assert (size <= this.input_size);
-      // The DoublePointer type allows for C style memset 
-      // and memcpy calls, which were used in the C++ 
-      // example.  Preserving this logic would seem to require 
-      // first creating a DoublePointer from the Java array 
-      // (buffer), which involves an additional copy operation.  
-      // An alternative might be to use 
-      // this.input_buffer.put(buffer) instead of memcpy, 
-      // which would still require a memset call or similar.  
-      // We use the memcpy approach to more closely follow 
-      // the original example.  
+      // The DoublePointer type allows for C style memset
+      // and memcpy calls, which were used in the C++
+      // example.  Preserving this logic would seem to require
+      // first creating a DoublePointer from the Java array
+      // (buffer), which involves an additional copy operation.
+      // An alternative might be to use
+      // this.input_buffer.put(buffer) instead of memcpy,
+      // which would still require a memset call or similar.
+      // We use the memcpy approach to more closely follow
+      // the original example.
       DoublePointer.memcpy(
           this.input_buffer, new DoublePointer(buffer), this.input_buffer.sizeof() * size);
       DoublePointer.memset(
@@ -58,7 +58,7 @@ public class FFTWWrappers {
     }
 
     public double[] get_output() {
-      // multiply by 2 as this is an array of doubles 
+      // multiply by 2 as this is an array of doubles
       // and not complex numbers
       double[] result = new double[2 * this.output_size];
       this.output_buffer.get(result);

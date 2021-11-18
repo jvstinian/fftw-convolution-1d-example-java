@@ -58,7 +58,7 @@ public class ConvolutionExample {
     }
     return result;
   }
-  
+
   private static double[] elementwise_complex_multiply(double[] a, double[] b) {
     assert (a.length == b.length);
     double[] result = new double[a.length];
@@ -126,7 +126,7 @@ public class ConvolutionExample {
     PrintHelpers.print(elementwise_complex_multiply(fft_a.get_output(), fft_b.get_output()));
 
     ifft.set_input(elementwise_complex_multiply(fft_a.get_output(), fft_b.get_output()));
-    // Alternatively, using the Complex type: 
+    // Alternatively, using the Complex type:
     // ifft.set_input(elementwise_complex_multiply(fft_a.get_output_as_complex_array(),
 
     ifft.execute();
